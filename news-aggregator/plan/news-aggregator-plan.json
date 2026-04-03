@@ -1,0 +1,178 @@
+{
+  "project_name": "Ruflo News Aggregator",
+  "description": "Multi-agent news aggregation demonstration showcasing Ruflo swarm orchestration capabilities",
+  "version": "1.0.0",
+  "created_at": "2026-04-04T02:13:00Z",
+  "context": {
+    "purpose": "Create a multi-agent news aggregator that demonstrates the power of Ruflo",
+    "key_showcases": [
+      "Multi-agent architecture with specialized agents for different tasks",
+      "Autonomous workflow with agents collaborating without manual intervention",
+      "Ruflo integration leveraging the agent swarm framework",
+      "Real-time news processing with fetching, filtering, and summarizing"
+    ]
+  },
+  "architecture": {
+    "diagram": "FastAPI backend with 6 agents: Feeder, Processor, Sentiment, Summarizer, Publisher, and Coordinator swarm manager",
+    "backend": "Python + FastAPI (async)",
+    "agents_framework": "Ruflo multi-agent framework",
+    "news_sources": "RSS + JSON APIs (NewsAPI, GNews, RSS feeds)",
+    "summary_engine": "Text summarizer or HuggingFace models",
+    "sentiment_analysis": "TextBlob or transformers",
+    "frontend": "Simple HTML + vanilla JS (no framework overhead)"
+  },
+  "agent_roles": {
+    "coordinator": {
+      "purpose": "Orchestrates the multi-agent workflow",
+      "tasks": [
+        "Receives news request (topic, time range, sources)",
+        "Spawns appropriate feeder agents",
+        "Distributes news to processor agents",
+        "Aggregates results and routes to UI"
+      ]
+    },
+    "feeder": {
+      "purpose": "Fetch news from multiple sources",
+      "tasks": [
+        "Scrape/API calls to news sources (RSS, JSON APIs)",
+        "Handle rate limiting and retries",
+        "Normalize article metadata"
+      ],
+      "instances": "One per news source (TechCrunch, Reuters, Bloomberg, etc.)"
+    },
+    "processor": {
+      "purpose": "Process raw news content",
+      "tasks": [
+        "Extract key entities (people, companies, topics)",
+        "Classify topic/sector",
+        "Detect spam/fake news signals"
+      ]
+    },
+    "sentiment": {
+      "purpose": "Analyze news sentiment",
+      "tasks": [
+        "Run sentiment analysis on articles",
+        "Aggregate sentiment per topic",
+        "Detect market-moving news"
+      ]
+    },
+    "summarizer": {
+      "purpose": "Generate concise summaries",
+      "tasks": [
+        "Create TL;DR for each article",
+        "Generate topic-specific summaries",
+        "Deduplicate overlapping content"
+      ]
+    },
+    "publisher": {
+      "purpose": "Push results to UI",
+      "tasks": [
+        "Format JSON response",
+        "Stream to WebSocket (real-time)",
+        "Cache results"
+      ]
+    }
+  },
+  "implementation_plan": {
+    "phase_1_project_structure": {
+      "description": "Create project structure with app/, agents/, utils/, models/ directories",
+      "files": [
+        "app/main.py - FastAPI entry point",
+        "app/api/router.py - API endpoints",
+        "app/api/websocket.py - Real-time streaming",
+        "agents/coordinator.py - Swarm manager",
+        "agents/feeder.py - News fetcher",
+        "agents/processor.py - Content processor",
+        "agents/sentiment.py - Sentiment analysis",
+        "agents/summarizer.py - Summary generation",
+        "agents/publisher.py - Result pusher",
+        "utils/news_sources.py - Source definitions",
+        "models/article.py - Article schema",
+        "models/news_item.py - News item schema",
+        "requirements.txt - Dependencies",
+        "README.md - Documentation"
+      ]
+    },
+    "phase_2_core_implementation": [
+      "Define FastAPI routes and WebSocket endpoint",
+      "Implement Ruflo agent classes",
+      "Connect agents via shared state (Redis or in-memory)",
+      "Add error handling and retry logic"
+    ],
+    "phase_3_frontend": [
+      "Create simple HTML dashboard",
+      "Implement WebSocket client for real-time updates",
+      "Display aggregated news with sentiment indicators"
+    ],
+    "phase_4_testing_polish": [
+      "Unit tests for each agent",
+      "Integration tests for full workflow",
+      "Performance benchmarks"
+    ]
+  },
+  "api_endpoints": [
+    {
+      "endpoint": "/api/news",
+      "method": "POST",
+      "description": "Submit news aggregation request"
+    },
+    {
+      "endpoint": "/api/news/{id}",
+      "method": "GET",
+      "description": "Get aggregated results by ID"
+    },
+    {
+      "endpoint": "/api/status",
+      "method": "GET",
+      "description": "Get current swarm status"
+    },
+    {
+      "endpoint": "/api/websocket",
+      "method": "WS",
+      "description": "Real-time streaming"
+    }
+  ],
+  "verification_steps": [
+    "pip install -r requirements.txt",
+    "python -m uvicorn app.main:app --reload",
+    "curl -X POST http://localhost:8000/api/news -H \"Content-Type: application/json\" -d '{\"topic\": \"tech\"}'",
+    "Open browser: http://localhost:8000",
+    "Verify multi-agent workflow logs in console"
+  ],
+  "project_structure": {
+    "news-aggregator/": {
+      "app/": {
+        "__init__.py": "Package init",
+        "main.py": "FastAPI entry point",
+        "api/": {
+          "__init__.py": "Package init",
+          "router.py": "API endpoints",
+          "websocket.py": "Real-time streaming"
+        }
+      },
+      "agents/": {
+        "__init__.py": "Package init",
+        "coordinator.py": "Swarm manager",
+        "feeder.py": "News fetcher",
+        "processor.py": "Content processor",
+        "sentiment.py": "Sentiment analysis",
+        "summarizer.py": "Summary generation",
+        "publisher.py": "Result pusher"
+      },
+      "utils/": {
+        "__init__.py": "Package init",
+        "config.py": "Configuration",
+        "news_sources.py": "Source definitions"
+      },
+      "models/": {
+        "__init__.py": "Package init",
+        "article.py": "Article schema",
+        "news_item.py": "News item schema"
+      },
+      "requirements.txt": "Dependencies",
+      "README.md": "Documentation"
+    }
+  },
+  "status": "completed",
+  "generated_from": "C:\\Users\\User\\.claude\\plans\\zesty-mapping-wreath.md"
+}
