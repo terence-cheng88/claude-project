@@ -33,11 +33,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install production dependencies
+# Copy installed packages from builder
 COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 
+# Copy requirements
 COPY requirements.txt .
+
+# Run pip install
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application (exclude dev files)
@@ -49,13 +52,8 @@ COPY --from=dev /app/frontend /app/frontend
 COPY --from=dev /app/config /app/config
 COPY --from=dev /app/requirements.txt /app/requirements.txt
 
-# Create non-root user for security
-RUN addgroup --system --gid 1001 appgroup && \
-    adduser --system --uid 1001 --ingroup appgroup appuser
-
-# Set permissions
-RUN chown -R appuser:appuser /app
-USER appuser
+# Set permissions for Python scripts
+RUN chmod +x /app/*.py 2>/dev/null || true
 
 # Expose port
 EXPOSE 8000

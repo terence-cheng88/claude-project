@@ -5,6 +5,35 @@ A multi-agent news aggregator application that demonstrates the power of **Ruflo
 ![Ruflo News Aggregator](https://img.shields.io/badge/Powered%20by-Ruflo-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
+## Quick Start
+
+### Option 1: Run with uvicorn (Development)
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the server
+python -m uvicorn app.main:app --reload
+
+# Open browser
+# http://localhost:8000
+```
+
+### Option 2: Run with Docker (Production)
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Access the application
+# http://localhost:8000
+
+# View logs
+docker-compose logs -f web
+
+# Stop the container
+docker-compose down
+```
+
 ## Features
 
 - **Multi-Agent Architecture**: 5 specialized agents working together autonomously
