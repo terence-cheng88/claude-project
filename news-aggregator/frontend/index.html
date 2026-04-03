@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruflo News Aggregator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #eee;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 20px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #1e1e2e;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+
+        .status-bar {
+            background: #1e1e2e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #888;
+        }
+
+        .status-dot.active {
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .article-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+
+        .article-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+
+        .article-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .article-summary {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .source-badge {
+            background: #333;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .source-badge.tech {
+            background: #1e3a5f;
+            color: #00d4ff;
+        }
+
+        .source-badge.finance {
+            background: #3a2a1e;
+            color: #ff8c00;
+        }
+
+        .source-badge.ai {
+            background: #2a1e3a;
+            color: #a855f7;
+        }
+
+        .sentiment-positive {
+            color: #00ff88;
+        }
+
+        .sentiment-negative {
+            color: #ff6b6b;
+        }
+
+        .sentiment-neutral {
+            color: #888;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <span class="emoji">📰</span> Ruflo News Aggregator
+            </h1>
+            <p class="subtitle">Multi-agent swarm news processing powered by Ruflo</p>
+        </header>
+
+        <div class="controls">
+            <input type="text" id="topicInput" placeholder="Enter topic (e.g., AI, crypto, tech, finance)" value="AI">
+            <button class="btn-primary" onclick="fetchNews()">🔍 Aggregate News</button>
+            <button class="btn-secondary" onclick="clearArticles()">🗑️ Clear</button>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Ready</span>
+            </div>
+            <span id="sourceCount">Sources: 0</span>
+        </div>
+
+        <div class="articles-grid" id="articlesGrid">
+            <div class="empty-state">
+                <span class="emoji">🔮</span>
+                <p>Enter a topic above to start multi-agent news aggregation</p>
+                <p style="font-size: 0.9rem; margin-top: 10px; color: #555;">
+                    The swarm will fetch, process, analyze, and summarize news in real-time
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let articles = [];
+
+        async function fetchNews() {
+            const topic = document.getElementById('topicInput').value.trim();
+            if (!topic) {
+                alert('Please enter a topic');
+                return;
+            }
+
+            // Update status
+            updateStatus('fetching');
+
+            try {
+                const response = await fetch(`/api/news?topic=${encodeURIComponent(topic)}&max_articles=10`);
+                const data = await response.json();
+
+                if (data.success) {
+                    articles = data.articles;
+                    displayArticles(articles);
+                    updateStatus('complete');
+                } else {
+                    alert('Error: ' + data.error);
+                    updateStatus('error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                updateStatus('error');
+            }
+        }
+
+        function displayArticles(articles) {
+            const grid = document.getElementById('articlesGrid');
+            grid.innerHTML = '';
+
+            if (articles.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <span class="emoji">📭</span>
+                        <p>No articles found for "${document.getElementById('topicInput').value}"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            articles.forEach(article => {
+                const sentimentClass = article.sentiment > 0.2 ? 'sentiment-positive' :
+                                      article.sentiment < -0.2 ? 'sentiment-negative' :
+                                      'sentiment-neutral';
+                const sentimentIcon = article.sentiment > 0.2 ? '👍' :
+                                      article.sentiment < -0.2 ? '👎' : '➖';
+
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                card.innerHTML = `
+                    <h3 class="article-title">${escapeHtml(article.title)}</h3>
+                    <p class="article-summary">${escapeHtml(article.summary)}</p>
+                    <div class="article-meta">
+                        <span class="source-badge ${article.category?.toLowerCase() || 'tech'}">
+                            ${article.source}
+                        </span>
+                        <span class="${sentimentClass}">
+                            ${sentimentIcon} ${article.sentiment ? (article.sentiment * 100).toFixed(0) : 'N/A'}%
+                        </span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Update source count
+            const sources = new Set(articles.map(a => a.source));
+            document.getElementById('sourceCount').textContent = `Sources: ${sources.size}`;
+        }
+
+        function clearArticles() {
+            articles = [];
+            document.getElementById('articlesGrid').innerHTML = `
+                <div class="empty-state">
+                    <span class="emoji">🔮</span>
+                    <p>Enter a topic above to start multi-agent news aggregation</p>
+                </div>
+            `;
+            updateStatus('idle');
+            document.getElementById('sourceCount').textContent = 'Sources: 0';
+        }
+
+        function updateStatus(status) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+
+            if (status === 'fetching') {
+                dot.classList.add('active');
+                text.textContent = 'Fetching news...';
+            } else if (status === 'complete') {
+                dot.classList.remove('active');
+                text.textContent = 'Complete';
+            } else if (status === 'error') {
+                dot.classList.remove('active');
+                text.textContent = 'Error';
+            } else {
+                dot.classList.remove('active');
+                text.textContent = 'Ready';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // Load news on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchNews();
+        });
+    </script>
+</body>
+</html>
